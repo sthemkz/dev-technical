@@ -29,11 +29,13 @@ public class CommentAnalyzer {
 					
 					incOccurrence(resultsMap, "SHORTER_THAN_15");
 
-				} else if (line.contains("Mover")) {
+				}
+				if (line.contains("Mover")) {
 
 					incOccurrence(resultsMap, "MOVER_MENTIONS");
 				
-				} else if (line.contains("Shaker")) {
+				}
+				if (line.contains("Shaker")) {
 
 					incOccurrence(resultsMap, "SHAKER_MENTIONS");
 				
