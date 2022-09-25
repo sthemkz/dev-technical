@@ -14,7 +14,7 @@ public class Main {
 				
 		File docPath = new File("docs");
 		File[] commentFiles = docPath.listFiles((d, n) -> n.endsWith(".txt"));
-		ArrayList<CommentMetricProcessor> commentMetrics= new ArrayList<>(Arrays.asList(new SearchOccurance( "SHAKER_MENTIONS", "Shaker"),new SearchOccurance( "MOVER_MENTIONS", "Mover"),new ShorterComments( "SHORTER_THAN_15")));
+		ArrayList<CommentMetricProcessor> commentMetrics= new ArrayList<>(Arrays.asList(new SearchOccurance( "QUESTIONS", "?"),new SearchOccurance( "SHAKER_MENTIONS", "Shaker"),new SearchOccurance( "MOVER_MENTIONS", "Mover"),new ShorterComments( "SHORTER_THAN_15")));
 		
 		for (File commentFile : commentFiles) {
 			
