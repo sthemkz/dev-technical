@@ -1,7 +1,7 @@
 package com.ikhokha.techcheck;
 
-public class  ShorterComments extends CommentMetricProcessor {
-	  public ShorterComments( String key) {
+public class  ShortComments extends CommentMetricProcessor {
+	  public ShortComments( String key) {
         super(key);	
   }
    
