@@ -29,7 +29,6 @@ public class CommentAnalyzer {
 			
 		  	String line = null;
 			while ((line = reader.readLine()) != null) {
-
 				for (CommentMetricProcessor commentMetric : this.commentMetrics){
 					commentMetricPopulate(commentMetric, resultsMap, line);
 				}
