@@ -1,8 +1,8 @@
 package com.ikhokha.techcheck;
 
-public abstract class CommentAnalysis {
+public abstract class CommentMetricProcessor {
     private String key;
-    public  CommentAnalysis(String key){
+    public  CommentMetricProcessor(String key){
     this.key=key;
  
     }
