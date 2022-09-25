@@ -1,6 +1,8 @@
 package com.ikhokha.techcheck;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +14,11 @@ public class Main {
 				
 		File docPath = new File("docs");
 		File[] commentFiles = docPath.listFiles((d, n) -> n.endsWith(".txt"));
+		ArrayList<CommentAnalysis> commentMetrics= new ArrayList<>(Arrays.asList(new SearchOccurance( "SHAKER_MENTIONS", "Shaker"),new SearchOccurance( "MOVER_MENTIONS", "Mover"),new ShorterComments( "SHORTER_THAN_15")));
 		
 		for (File commentFile : commentFiles) {
 			
-			CommentAnalyzer commentAnalyzer = new CommentAnalyzer(commentFile);
+			CommentAnalyzer commentAnalyzer = new CommentAnalyzer(commentFile,commentMetrics);
 			Map<String, Integer> fileResults = commentAnalyzer.analyze();
 			addReportResults(fileResults, totalResults);
 						
@@ -33,7 +36,8 @@ public class Main {
 	private static void addReportResults(Map<String, Integer> source, Map<String, Integer> target) {
 
 		for (Map.Entry<String, Integer> entry : source.entrySet()) {
-			target.put(entry.getKey(), entry.getValue());
+			target.putIfAbsent(entry.getKey(), 0);
+			target.put(entry.getKey(), entry.getValue()+target.get(entry.getKey()));
 		}
 		
 	}

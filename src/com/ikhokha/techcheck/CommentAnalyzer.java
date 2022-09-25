@@ -5,38 +5,33 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommentAnalyzer {
-	
+    private ArrayList<CommentAnalysis> commentMetrics;
 	private File file;
+
 	
-	public CommentAnalyzer(File file) {
+	public CommentAnalyzer(File file , ArrayList<CommentAnalysis> commentMetrics) {
 		this.file = file;
+		this.commentMetrics=commentMetrics;
 	}
+
 	
 	public Map<String, Integer> analyze() {
-		
+
+
 		Map<String, Integer> resultsMap = new HashMap<>();
 		
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			
-			String line = null;
+		  	String line = null;
 			while ((line = reader.readLine()) != null) {
-				
-				if (line.length() < 15) {
-					
-					incOccurrence(resultsMap, "SHORTER_THAN_15");
 
-				} else if (line.contains("Mover")) {
-
-					incOccurrence(resultsMap, "MOVER_MENTIONS");
-				
-				} else if (line.contains("Shaker")) {
-
-					incOccurrence(resultsMap, "SHAKER_MENTIONS");
-				
+				for (CommentAnalysis commentMetric : this.commentMetrics){
+					incOccurr(commentMetric, resultsMap, line);
 				}
 			}
 			
@@ -51,7 +46,11 @@ public class CommentAnalyzer {
 		return resultsMap;
 		
 	}
-	
+	private void incOccurr(CommentAnalysis commentMetric,Map<String, Integer> resultsMap,String line) {
+		if(commentMetric.results(line)){
+			incOccurrence(resultsMap,commentMetric.getKey() );
+		}
+	}
 	/**
 	 * This method increments a counter by 1 for a match type on the countMap. Uninitialized keys will be set to 1
 	 * @param countMap the map that keeps track of counts
@@ -64,3 +63,4 @@ public class CommentAnalyzer {
 	}
 
 }
+
