@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommentAnalyzer {
-    private ArrayList<CommentAnalysis> commentMetrics;
+    private ArrayList<CommentMetricProcessor> commentMetrics;
 	private File file;
 
 	
-	public CommentAnalyzer(File file , ArrayList<CommentAnalysis> commentMetrics) {
+	public CommentAnalyzer(File file , ArrayList<CommentMetricProcessor> commentMetrics) {
 		this.file = file;
 		this.commentMetrics=commentMetrics;
 	}
@@ -30,8 +30,8 @@ public class CommentAnalyzer {
 		  	String line = null;
 			while ((line = reader.readLine()) != null) {
 
-				for (CommentAnalysis commentMetric : this.commentMetrics){
-					incOccurr(commentMetric, resultsMap, line);
+				for (CommentMetricProcessor commentMetric : this.commentMetrics){
+					commentMetricPopulate(commentMetric, resultsMap, line);
 				}
 			}
 			
@@ -46,7 +46,8 @@ public class CommentAnalyzer {
 		return resultsMap;
 		
 	}
-	private void incOccurr(CommentAnalysis commentMetric,Map<String, Integer> resultsMap,String line) {
+
+	private void commentMetricPopulate(CommentMetricProcessor commentMetric,Map<String, Integer> resultsMap,String line) {
 		if(commentMetric.results(line)){
 			incOccurrence(resultsMap,commentMetric.getKey() );
 		}

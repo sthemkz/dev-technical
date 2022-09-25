@@ -1,6 +1,6 @@
 package com.ikhokha.techcheck;
 
-public class SearchOccurance extends CommentAnalysis {
+public class SearchOccurance extends CommentMetricProcessor {
     private String searchValue;
 	  
 
