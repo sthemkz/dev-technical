@@ -8,47 +8,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
-public class CommentAnalyzer {
+public class CommentAnalyzer implements Callable<Map<String, Integer>> {
     private ArrayList<CommentMetricProcessor> commentMetrics;
-	private File file;
+	private File inputFile;
+    private Map<String, Integer> resultsMap = new HashMap<>();
 
 	
-	public CommentAnalyzer(File file , ArrayList<CommentMetricProcessor> commentMetrics) {
-		this.file = file;
+	public CommentAnalyzer(File inputFile , ArrayList<CommentMetricProcessor> commentMetrics) {
+		this.inputFile = inputFile;
 		this.commentMetrics=commentMetrics;
 	}
 
 	
-	public Map<String, Integer> analyze() {
-
-
-		Map<String, Integer> resultsMap = new HashMap<>();
-		
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			
-		  	String line = null;
-			while ((line = reader.readLine()) != null) {
-				for (CommentMetricProcessor commentMetric : this.commentMetrics){
-					commentMetricPopulate(commentMetric, resultsMap, line);
-				}
-			}
-			
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found: " + file.getAbsolutePath());
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("IO Error processing file: " + file.getAbsolutePath());
-			e.printStackTrace();
-		}
-		
-		return resultsMap;
-		
-	}
 
 	private void commentMetricPopulate(CommentMetricProcessor commentMetric,Map<String, Integer> resultsMap,String line) {
 		if(commentMetric.results(line)){
-			incOccurrence(resultsMap,commentMetric.getKey() );
+			incrementOccurrence(resultsMap,commentMetric.getKey() );
 		}
 	}
 	/**
@@ -56,11 +33,39 @@ public class CommentAnalyzer {
 	 * @param countMap the map that keeps track of counts
 	 * @param key the key for the value to increment
 	 */
-	private void incOccurrence(Map<String, Integer> countMap, String key) {
+	private void incrementOccurrence(Map<String, Integer> countMap, String key) {
 		
 		countMap.putIfAbsent(key, 0);
 		countMap.put(key, countMap.get(key) + 1);
 	}
+
+
+    @Override
+    public Map<String, Integer> call() {
+
+
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+			
+		  	String fileLine = null;
+			while ((fileLine = reader.readLine()) != null) {
+				for (CommentMetricProcessor commentMetric : commentMetrics){
+					commentMetricPopulate(commentMetric, resultsMap, fileLine);
+				}
+			}
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found: " + inputFile.getAbsolutePath());
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("IO Error processing file: " + inputFile.getAbsolutePath());
+			e.printStackTrace();
+		}
+		
+		return resultsMap;
+		
+       
+    }
 
 }
 
