@@ -11,49 +11,47 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class CommentAnalyzer implements Callable<Map<String, Integer>> {
-    private ArrayList<CommentMetricProcessor> commentMetrics;
+	private ArrayList<CommentMetricProcessor> commentMetrics;
 	private File inputFile;
-    private Map<String, Integer> resultsMap = new HashMap<>();
+	private Map<String, Integer> processedOutputMetricsResults = new HashMap<>();
 
-	
-	public CommentAnalyzer(File inputFile , ArrayList<CommentMetricProcessor> commentMetrics) {
+	public CommentAnalyzer(File inputFile, ArrayList<CommentMetricProcessor> commentMetrics) {
 		this.inputFile = inputFile;
-		this.commentMetrics=commentMetrics;
+		this.commentMetrics = commentMetrics;
 	}
 
-	
-
-	private void commentMetricPopulate(CommentMetricProcessor commentMetric,Map<String, Integer> resultsMap,String line) {
-		if(commentMetric.results(line)){
-			incrementOccurrence(resultsMap,commentMetric.getKey() );
+	private void commentMetricPopulate(CommentMetricProcessor commentMetric,
+			Map<String, Integer> processedOutputMetricsResults, String inputFile) {
+		if (commentMetric.isConditionMet(inputFile)) {
+			incrementOccurrence(processedOutputMetricsResults, commentMetric.getKey());
 		}
 	}
+
 	/**
-	 * This method increments a counter by 1 for a match type on the countMap. Uninitialized keys will be set to 1
+	 * This method increments a counter by 1 for a match type on the countMap.
+	 * Uninitialized keys will be set to 1
+	 * 
 	 * @param countMap the map that keeps track of counts
-	 * @param key the key for the value to increment
+	 * @param key      the key for the value to increment
 	 */
-	private void incrementOccurrence(Map<String, Integer> countMap, String key) {
-		
-		countMap.putIfAbsent(key, 0);
-		countMap.put(key, countMap.get(key) + 1);
+	private void incrementOccurrence(Map<String, Integer> countMetricResults, String key) {
+
+		countMetricResults.putIfAbsent(key, 0);
+		countMetricResults.put(key, countMetricResults.get(key) + 1);
 	}
 
+	@Override
+	public Map<String, Integer> call() {
 
-    @Override
-    public Map<String, Integer> call() {
-
-
-		
 		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-			
-		  	String fileLine = null;
+
+			String fileLine = null;
 			while ((fileLine = reader.readLine()) != null) {
-				for (CommentMetricProcessor commentMetric : commentMetrics){
-					commentMetricPopulate(commentMetric, resultsMap, fileLine);
+				for (CommentMetricProcessor commentMetric : commentMetrics) {
+					commentMetricPopulate(commentMetric, processedOutputMetricsResults, fileLine);
 				}
 			}
-			
+
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found: " + inputFile.getAbsolutePath());
 			e.printStackTrace();
@@ -61,11 +59,7 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 			System.out.println("IO Error processing file: " + inputFile.getAbsolutePath());
 			e.printStackTrace();
 		}
-		
-		return resultsMap;
-		
-       
-    }
 
+		return processedOutputMetricsResults;
+	}
 }
-

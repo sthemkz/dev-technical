@@ -14,13 +14,12 @@ import java.util.concurrent.Future;
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
-		final int MaxNumberOfThreads = Runtime.getRuntime().availableProcessors() / 2;
+		final int MaxNumberOfThreads = (int) Math.ceil((double) Runtime.getRuntime().availableProcessors() / 2);
+
 		Map<String, Integer> totalProcessedOutputMetricsResults = new HashMap<>();
-
 		ArrayList<CommentMetricProcessor> commentMetrics = getCommentMetric();
-
 		ArrayList<CommentAnalyzer> tasks = getTasks(commentMetrics);
-
+		
 		ExecutorService tasksExecutorService = Executors.newFixedThreadPool(MaxNumberOfThreads);
 		List<Future<Map<String, Integer>>> processedOutputMetricsResults = tasksExecutorService.invokeAll(tasks);
 
@@ -28,8 +27,8 @@ public class Main {
 
 			addReportResults(processedOutputMetricsResult.get(), totalProcessedOutputMetricsResults);
 		}
-		System.out.println("RESULTS\n=======");
 
+		System.out.println("RESULTS\n=======");
 		totalProcessedOutputMetricsResults.forEach((key, value) -> System.out.println(key + " : " + value));
 		tasksExecutorService.shutdown();
 	}
@@ -44,19 +43,17 @@ public class Main {
 	 */
 	private static void addReportResults(Map<String, Integer> finalInputMetricsResults,
 			Map<String, Integer> finalOutputMetricsResults) {
-
 		for (Map.Entry<String, Integer> entry : finalInputMetricsResults.entrySet()) {
 			finalOutputMetricsResults.putIfAbsent(entry.getKey(), 0);
 			finalOutputMetricsResults.put(entry.getKey(),
 					entry.getValue() + finalOutputMetricsResults.get(entry.getKey()));
 		}
-
 	}
 
 	private static ArrayList<CommentMetricProcessor> getCommentMetric() {
-		return new ArrayList<>(Arrays.asList(new SearchLinkUrl("SPAM"), new SearchOccurance("QUESTIONS", "?"),
-				new SearchOccurance("SHAKER_MENTIONS", "Shaker"), new SearchOccurance("MOVER_MENTIONS", "Mover"),
-				new ShortComments("SHORTER_THAN_15")));
+		return new ArrayList<>(Arrays.asList(new SearchLinkUrl("SPAM"), new SearchStringOccurance("QUESTIONS", "?"),
+				new SearchStringOccurance("SHAKER_MENTIONS", "Shaker"),
+				new SearchStringOccurance("MOVER_MENTIONS", "Mover"), new ShortComments("SHORTER_THAN_15")));
 	}
 
 	private static ArrayList<CommentAnalyzer> getTasks(ArrayList<CommentMetricProcessor> commentMetrics) {
@@ -65,12 +62,8 @@ public class Main {
 		File[] inputCommentFiles = documentPath.listFiles((directory, fileName) -> fileName.endsWith(".txt"));
 
 		for (File inputCommentFile : inputCommentFiles) {
-
 			tasks.add(new CommentAnalyzer(inputCommentFile, commentMetrics));
-
 		}
 		return tasks;
-
 	}
-
 }
