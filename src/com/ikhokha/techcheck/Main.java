@@ -4,42 +4,73 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Main {
 
-	public static void main(String[] args) {
-		
-		Map<String, Integer> totalResults = new HashMap<>();
-				
-		File docPath = new File("docs");
-		File[] commentFiles = docPath.listFiles((d, n) -> n.endsWith(".txt"));
-		ArrayList<CommentMetricProcessor> commentMetrics= new ArrayList<>(Arrays.asList(new SearchLinkUrl("SPAM"),new SearchOccurance( "QUESTIONS", "?"),new SearchOccurance( "SHAKER_MENTIONS", "Shaker"),new SearchOccurance( "MOVER_MENTIONS", "Mover"),new ShortComments( "SHORTER_THAN_15")));
-		
-		for (File commentFile : commentFiles) {
-			
-			CommentAnalyzer commentAnalyzer = new CommentAnalyzer(commentFile,commentMetrics);
-			Map<String, Integer> fileResults = commentAnalyzer.analyze();
-			addReportResults(fileResults, totalResults);
-						
-		}
-		
-		System.out.println("RESULTS\n=======");
-		totalResults.forEach((k,v) -> System.out.println(k + " : " + v));
-	}
-	
-	/**
-	 * This method adds the result counts from a source map to the target map 
-	 * @param source the source map
-	 * @param target the target map
-	 */
-	private static void addReportResults(Map<String, Integer> source, Map<String, Integer> target) {
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+		final int MaxNumberOfThreads = Runtime.getRuntime().availableProcessors() / 2;
+		Map<String, Integer> totalProcessedOutputMetricsResults = new HashMap<>();
 
-		for (Map.Entry<String, Integer> entry : source.entrySet()) {
-			target.putIfAbsent(entry.getKey(), 0);
-			target.put(entry.getKey(), entry.getValue()+target.get(entry.getKey()));
+		ArrayList<CommentMetricProcessor> commentMetrics = getCommentMetric();
+
+		ArrayList<CommentAnalyzer> tasks = getTasks(commentMetrics);
+
+		ExecutorService tasksExecutorService = Executors.newFixedThreadPool(MaxNumberOfThreads);
+		List<Future<Map<String, Integer>>> processedOutputMetricsResults = tasksExecutorService.invokeAll(tasks);
+
+		for (Future<Map<String, Integer>> processedOutputMetricsResult : processedOutputMetricsResults) {
+
+			addReportResults(processedOutputMetricsResult.get(), totalProcessedOutputMetricsResults);
 		}
-		
+		System.out.println("RESULTS\n=======");
+
+		totalProcessedOutputMetricsResults.forEach((key, value) -> System.out.println(key + " : " + value));
+		tasksExecutorService.shutdown();
+	}
+
+	/**
+	 * This method adds the result counts from a source map to the target map
+	 * 
+	 * @param finalInputMetricsResults           the source map
+	 * @param totalProcessedOutputMetricsResults the target map
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	private static void addReportResults(Map<String, Integer> finalInputMetricsResults,
+			Map<String, Integer> finalOutputMetricsResults) {
+
+		for (Map.Entry<String, Integer> entry : finalInputMetricsResults.entrySet()) {
+			finalOutputMetricsResults.putIfAbsent(entry.getKey(), 0);
+			finalOutputMetricsResults.put(entry.getKey(),
+					entry.getValue() + finalOutputMetricsResults.get(entry.getKey()));
+		}
+
+	}
+
+	private static ArrayList<CommentMetricProcessor> getCommentMetric() {
+		return new ArrayList<>(Arrays.asList(new SearchLinkUrl("SPAM"), new SearchOccurance("QUESTIONS", "?"),
+				new SearchOccurance("SHAKER_MENTIONS", "Shaker"), new SearchOccurance("MOVER_MENTIONS", "Mover"),
+				new ShortComments("SHORTER_THAN_15")));
+	}
+
+	private static ArrayList<CommentAnalyzer> getTasks(ArrayList<CommentMetricProcessor> commentMetrics) {
+		ArrayList<CommentAnalyzer> tasks = new ArrayList<>();
+		File documentPath = new File("docs");
+		File[] inputCommentFiles = documentPath.listFiles((directory, fileName) -> fileName.endsWith(".txt"));
+
+		for (File inputCommentFile : inputCommentFiles) {
+
+			tasks.add(new CommentAnalyzer(inputCommentFile, commentMetrics));
+
+		}
+		return tasks;
+
 	}
 
 }
