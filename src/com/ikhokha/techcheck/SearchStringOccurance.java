@@ -9,7 +9,7 @@ public class SearchStringOccurance extends CommentMetricProcessor {
 	}
 	
 	boolean isConditionMet(String fileLine) {
-		return fileLine.contains(this.searchValue);
+		return fileLine.contains(searchValue);
 	}
 }
 
