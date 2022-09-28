@@ -42,14 +42,13 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 	public Map<String, Integer> call() {
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-
+			
 			String fileLine = null;
 			while ((fileLine = reader.readLine()) != null) {
 				for (CommentMetricProcessor commentMetric : commentMetrics) {
 					commentMetricPopulate(commentMetric,fileLine);
 				}
 			}
-
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found: " + inputFile.getAbsolutePath());
 			e.printStackTrace();
