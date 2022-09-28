@@ -20,8 +20,13 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 		this.commentMetrics = commentMetrics;
 	}
 
-	private void commentMetricPopulate(CommentMetricProcessor commentMetric, String inputFile) {
-		if (commentMetric.isConditionMet(inputFile)) {
+    /**
+	 * The method traverse the list of objects containing predefine metrics
+	 * and check if the condion is found on each line of the file.
+	 * @param commentMetric metric object that contains the conditino to be validated
+    **/	
+	private void commentMetricPopulate(CommentMetricProcessor commentMetric, String inputFileLine) {
+		if (commentMetric.isConditionMet(inputFileLine)) {
 			incrementOccurrence(commentMetric.getKey());
 		}
 	}
@@ -30,7 +35,6 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 	 * This method increments a counter by 1 for a match type on the countMap.
 	 * Uninitialized keys will be set to 1
 	 * 
-	 * @param countMap the map that keeps track of counts
 	 * @param key      the key for the value to increment
 	 */
 	private void incrementOccurrence(String key) {

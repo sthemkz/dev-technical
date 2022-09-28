@@ -18,14 +18,13 @@ public class Main {
 
 		Map<String, Integer> totalProcessedOutputMetricsResults = new HashMap<>();
 		ArrayList<CommentMetricProcessor> commentMetrics = getCommentMetric();
-		ArrayList<CommentAnalyzer> tasks = getTasks(commentMetrics);
 		
+		ArrayList<CommentAnalyzer> tasks = getTasks(commentMetrics);
 		ExecutorService tasksExecutorService = Executors.newFixedThreadPool(MaxNumberOfThreads);
 		List<Future<Map<String, Integer>>> processedOutputMetricsResults = tasksExecutorService.invokeAll(tasks);
 		tasksExecutorService.shutdown();
 		
 		for (Future<Map<String, Integer>> processedOutputMetricsResult : processedOutputMetricsResults) {
-
 			addReportResults(processedOutputMetricsResult.get(), totalProcessedOutputMetricsResults);
 		}
 
@@ -38,7 +37,7 @@ public class Main {
 	 * This method adds the result counts from a source map to the target map
 	 * 
 	 * @param finalInputMetricsResults           the source map
-	 * @param totalProcessedOutputMetricsResults the target map
+	 * @param finalOutputMetricsResults          the target map
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
@@ -50,7 +49,11 @@ public class Main {
 					entry.getValue() + finalOutputMetricsResults.get(entry.getKey()));
 		}
 	}
-
+/**
+ * This method create an ArrayList with each metric
+ * A new metric is add as object on this method
+ * @return ArrayList containing tracked metrics
+ */
 	private static ArrayList<CommentMetricProcessor> getCommentMetric() {
 		return new ArrayList<>(Arrays.asList(new SearchLinkUrl("SPAM"), new SearchStringOccurance("QUESTIONS", "?"),
 				new SearchStringOccurance("SHAKER_MENTIONS", "Shaker"),

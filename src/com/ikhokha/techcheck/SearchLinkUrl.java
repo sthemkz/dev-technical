@@ -5,14 +5,14 @@ import java.util.regex.Pattern;
 
 public class SearchLinkUrl extends CommentMetricProcessor {
 
-	private final String URL_REGEX = "\\b((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?\\b";
+	private final String UrlRegex = "\\b((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?\\b";
 
 	public SearchLinkUrl(String key) {
 		super(key);
 	}
     
 	boolean isConditionMet(String fileLine) {
-		Pattern urlPattern = Pattern.compile(this.URL_REGEX);
+		Pattern urlPattern = Pattern.compile(UrlRegex);
 		Matcher urlMatcher = urlPattern.matcher(fileLine);
 		return urlMatcher.find();
 	}
