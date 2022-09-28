@@ -22,7 +22,8 @@ public class Main {
 		
 		ExecutorService tasksExecutorService = Executors.newFixedThreadPool(MaxNumberOfThreads);
 		List<Future<Map<String, Integer>>> processedOutputMetricsResults = tasksExecutorService.invokeAll(tasks);
-
+		tasksExecutorService.shutdown();
+		
 		for (Future<Map<String, Integer>> processedOutputMetricsResult : processedOutputMetricsResults) {
 
 			addReportResults(processedOutputMetricsResult.get(), totalProcessedOutputMetricsResults);
@@ -30,7 +31,7 @@ public class Main {
 
 		System.out.println("RESULTS\n=======");
 		totalProcessedOutputMetricsResults.forEach((key, value) -> System.out.println(key + " : " + value));
-		tasksExecutorService.shutdown();
+
 	}
 
 	/**

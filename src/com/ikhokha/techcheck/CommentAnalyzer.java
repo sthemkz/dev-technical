@@ -20,10 +20,9 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 		this.commentMetrics = commentMetrics;
 	}
 
-	private void commentMetricPopulate(CommentMetricProcessor commentMetric,
-			Map<String, Integer> processedOutputMetricsResults, String inputFile) {
+	private void commentMetricPopulate(CommentMetricProcessor commentMetric, String inputFile) {
 		if (commentMetric.isConditionMet(inputFile)) {
-			incrementOccurrence(processedOutputMetricsResults, commentMetric.getKey());
+			incrementOccurrence(commentMetric.getKey());
 		}
 	}
 
@@ -34,24 +33,22 @@ public class CommentAnalyzer implements Callable<Map<String, Integer>> {
 	 * @param countMap the map that keeps track of counts
 	 * @param key      the key for the value to increment
 	 */
-	private void incrementOccurrence(Map<String, Integer> countMetricResults, String key) {
-
-		countMetricResults.putIfAbsent(key, 0);
-		countMetricResults.put(key, countMetricResults.get(key) + 1);
+	private void incrementOccurrence(String key) {
+		processedOutputMetricsResults.putIfAbsent(key, 0);
+		processedOutputMetricsResults.put(key, processedOutputMetricsResults.get(key) + 1);
 	}
 
 	@Override
 	public Map<String, Integer> call() {
 
 		try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
-
+			
 			String fileLine = null;
 			while ((fileLine = reader.readLine()) != null) {
 				for (CommentMetricProcessor commentMetric : commentMetrics) {
-					commentMetricPopulate(commentMetric, processedOutputMetricsResults, fileLine);
+					commentMetricPopulate(commentMetric,fileLine);
 				}
 			}
-
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found: " + inputFile.getAbsolutePath());
 			e.printStackTrace();
